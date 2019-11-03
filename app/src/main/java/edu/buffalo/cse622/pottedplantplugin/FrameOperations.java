@@ -32,7 +32,14 @@ public class FrameOperations {
     public SkeletonNode pottedPlant;
     public Node node;
 
+    /**
+     * Constructor does all the resources loading that the plugin requires.
+     *
+     * @param dynamicResources The Resources object is already initialized and passed by MetaApp which helps the plugin to be "aware" of its own resources.
+     * @param context          This is the Context object passed by the MetaApp.
+     */
     public FrameOperations(Resources dynamicResources, Context context) {
+        // This is how we can load a layout resource.
         int layoutId = dynamicResources.getIdentifier("text_view", "layout", "edu.buffalo.cse622.pottedplantplugin");
         XmlResourceParser textViewXml = dynamicResources.getLayout(layoutId);
         View view = LayoutInflater.from(context).inflate(textViewXml, null);
@@ -45,6 +52,7 @@ public class FrameOperations {
                             textRenderable = renderable;
                         });
 
+        // This is how we load an model/asset.
         CompletableFuture<ModelRenderable> pottedPlantStage =
                 ModelRenderable.builder().setSource(context, new Callable() {
                     @Override
@@ -60,10 +68,7 @@ public class FrameOperations {
                         return inputStream;
                     }
                 }).build();
-        /*
-        CompletableFuture<ModelRenderable> pottedPlantStage =
-                ModelRenderable.builder().setSource(context, Uri.parse("potted_plant.sfb")).build();
-        */
+
         CompletableFuture.allOf(
                 pottedPlantStage)
                 .handle(
@@ -91,21 +96,14 @@ public class FrameOperations {
     }
 
     public AnchorNode processFrame(Frame frame) {
-        //Node node = null;
+
         AnchorNode anchorNode = null;
         for (Plane plane : frame.getUpdatedTrackables(Plane.class)) {
-            if (textRenderable != null) {
+            if (pottedPlantRenderable != null && textRenderable != null) {
                 Log.d("Check Model: ", pottedPlantRenderable.getMaterial().toString());
                 Anchor anchor = plane.createAnchor(plane.getCenterPose());
                 anchorNode = new AnchorNode(anchor);
 
-            /*
-            node = new Node();
-            node.setParent(anchorNode);
-            node.setRenderable(textRenderable);
-            TextView textView = (TextView) textRenderable.getView();
-            textView.setText("Works!");
-            */
                 // Create potted plant relative to anchor node
                 pottedPlant.setParent(anchorNode);
                 pottedPlant.setRenderable(pottedPlantRenderable);
@@ -115,17 +113,6 @@ public class FrameOperations {
                 Node boneNode = new Node();
                 boneNode.setParent(pottedPlant);
                 pottedPlant.setBoneAttachment("Potted Plant", boneNode);
-
-                /*
-                // Make potted plant face camera
-                Vector3 cameraPosition = anchorNode.getScene().getCamera().getWorldPosition();
-                Vector3 cardPosition = pottedPlant.getWorldPosition();
-                Vector3 direction = Vector3.subtract(cameraPosition, cardPosition);
-                Quaternion lookRotation = Quaternion.lookRotation(direction, Vector3.up());
-                // Z rotation set to zero so potted plant doesn't look upwards
-                lookRotation.z = 0f;
-                pottedPlant.setWorldRotation(lookRotation);
-                */
 
                 // Use bone node to display ViewRenderable
                 node.setRenderable(textRenderable);
@@ -139,8 +126,6 @@ public class FrameOperations {
 
                 TextView textView = (TextView) textRenderable.getView();
                 textView.setText("Plane detected: " + plane.getType().toString());
-
-                //transformableNode.setLocalRotation(Quaternion.axisAngle(new Vector3(1f, 0, 0), 270f));
             }
 
             break;
