@@ -39,7 +39,7 @@ public class FrameOperations {
      * @param context          This is the Context object passed by the MetaApp.
      */
     public FrameOperations(Resources dynamicResources, Context context) {
-        // This is how we can load a layout resource.
+        // This is how we load a layout resource.
         int layoutId = dynamicResources.getIdentifier("text_view", "layout", "edu.buffalo.cse622.pottedplantplugin");
         XmlResourceParser textViewXml = dynamicResources.getLayout(layoutId);
         View view = LayoutInflater.from(context).inflate(textViewXml, null);
@@ -52,7 +52,7 @@ public class FrameOperations {
                             textRenderable = renderable;
                         });
 
-        // This is how we load an model/asset.
+        // This is how we load a model/asset.
         CompletableFuture<ModelRenderable> pottedPlantStage =
                 ModelRenderable.builder().setSource(context, new Callable() {
                     @Override
@@ -95,12 +95,17 @@ public class FrameOperations {
         node = new Node();
     }
 
+    /**
+     * This is where we do most of our operations on the frame and return the AnchorNode object back to MetaApp.
+     *
+     * @param frame
+     * @return
+     */
     public AnchorNode processFrame(Frame frame) {
 
         AnchorNode anchorNode = null;
         for (Plane plane : frame.getUpdatedTrackables(Plane.class)) {
             if (pottedPlantRenderable != null && textRenderable != null) {
-                Log.d("Check Model: ", pottedPlantRenderable.getMaterial().toString());
                 Anchor anchor = plane.createAnchor(plane.getCenterPose());
                 anchorNode = new AnchorNode(anchor);
 
@@ -125,7 +130,7 @@ public class FrameOperations {
                 node.setLocalPosition(pottedUp);
 
                 TextView textView = (TextView) textRenderable.getView();
-                textView.setText("Plane detected: " + plane.getType().toString());
+                textView.setText("Please water this plant!");
             }
 
             break;
