@@ -27,10 +27,10 @@ import java.util.concurrent.ExecutionException;
 
 public class FrameOperations {
 
-    public ViewRenderable textRenderable;
-    public ModelRenderable pottedPlantRenderable;
-    public SkeletonNode pottedPlant;
-    public Node node;
+    private ViewRenderable textRenderable;
+    private ModelRenderable pottedPlantRenderable;
+    private SkeletonNode pottedPlant;
+    private Node node;
 
     /**
      * Constructor does all the resources loading that the plugin requires.
@@ -38,7 +38,7 @@ public class FrameOperations {
      * @param dynamicResources The Resources object is already initialized and passed by MetaApp which helps the plugin to be "aware" of its own resources.
      * @param context          This is the Context object passed by the MetaApp.
      */
-    public FrameOperations(Resources dynamicResources, Context context) {
+    public FrameOperations(Context context, Resources dynamicResources) {
         // This is how we load a layout resource.
         int layoutId = dynamicResources.getIdentifier("text_view", "layout", "edu.buffalo.cse622.pottedplantplugin");
         XmlResourceParser textViewXml = dynamicResources.getLayout(layoutId);
@@ -101,7 +101,7 @@ public class FrameOperations {
      * @param frame
      * @return
      */
-    public AnchorNode processFrame(Frame frame) {
+    private AnchorNode processFrame(Frame frame) {
 
         AnchorNode anchorNode = null;
         for (Plane plane : frame.getUpdatedTrackables(Plane.class)) {
