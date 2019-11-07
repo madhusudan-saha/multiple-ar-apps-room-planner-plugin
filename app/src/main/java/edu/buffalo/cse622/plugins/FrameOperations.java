@@ -1,4 +1,4 @@
-package edu.buffalo.cse622.pottedplantplugin;
+package edu.buffalo.cse622.plugins;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -40,7 +40,7 @@ public class FrameOperations {
      */
     public FrameOperations(Context context, Resources dynamicResources) {
         // This is how we load a layout resource.
-        int layoutId = dynamicResources.getIdentifier("text_view", "layout", "edu.buffalo.cse622.pottedplantplugin");
+        int layoutId = dynamicResources.getIdentifier("text_view", "layout", "edu.buffalo.cse622.plugins");
         XmlResourceParser textViewXml = dynamicResources.getLayout(layoutId);
         View view = LayoutInflater.from(context).inflate(textViewXml, null);
 

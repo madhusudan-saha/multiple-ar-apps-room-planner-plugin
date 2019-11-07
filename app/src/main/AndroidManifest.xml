@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="edu.buffalo.cse622.pottedplantplugin">
+    package="edu.buffalo.cse622.plugins">
 
     <application
         android:allowBackup="true"

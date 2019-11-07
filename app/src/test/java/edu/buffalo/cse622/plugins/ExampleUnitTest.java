@@ -1,4 +1,4 @@
-package edu.buffalo.cse622.pottedplantplugin;
+package edu.buffalo.cse622.plugins;
 
 import org.junit.Test;
 
