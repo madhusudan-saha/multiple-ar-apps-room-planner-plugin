@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.google.ar.core.Anchor;
 import com.google.ar.core.Frame;
+import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.Node;
@@ -31,6 +32,7 @@ public class FrameOperations {
     private ModelRenderable pottedPlantRenderable;
     private SkeletonNode pottedPlant;
     private Node node;
+    private boolean userTap;
 
     /**
      * Constructor does all the resources loading that the plugin requires.
@@ -103,6 +105,10 @@ public class FrameOperations {
      */
     private AnchorNode processFrame(Frame frame) {
 
+        if (userTap) {
+            return null;
+        }
+
         AnchorNode anchorNode = null;
         for (Plane plane : frame.getUpdatedTrackables(Plane.class)) {
             if (pottedPlantRenderable != null && textRenderable != null) {
@@ -134,6 +140,42 @@ public class FrameOperations {
             }
 
             break;
+        }
+
+        return anchorNode;
+    }
+
+    private AnchorNode planeTap(HitResult hitResult) {
+        AnchorNode anchorNode = null;
+
+        if (pottedPlantRenderable != null && textRenderable != null) {
+            Anchor anchor = hitResult.createAnchor();
+            anchorNode = new AnchorNode(anchor);
+
+            // Create potted plant relative to anchor node
+            pottedPlant.setParent(anchorNode);
+            pottedPlant.setRenderable(pottedPlantRenderable);
+            pottedPlant.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
+
+            // Attach bone node
+            Node boneNode = new Node();
+            boneNode.setParent(pottedPlant);
+            pottedPlant.setBoneAttachment("Potted Plant", boneNode);
+
+            // Use bone node to display ViewRenderable
+            node.setRenderable(textRenderable);
+            node.setParent(boneNode);
+
+            // Adjustments to the text position relative to the potted plant
+            Vector3 pottedUp = pottedPlant.getUp();
+            pottedUp.z += .4f;
+            pottedUp.y += 2f;
+            node.setLocalPosition(pottedUp);
+
+            TextView textView = (TextView) textRenderable.getView();
+            textView.setText("Please water this plant!");
+
+            userTap = true;
         }
 
         return anchorNode;
