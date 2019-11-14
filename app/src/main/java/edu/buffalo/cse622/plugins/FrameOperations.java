@@ -19,6 +19,7 @@ import com.google.ar.sceneform.SkeletonNode;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ViewRenderable;
+import com.google.ar.sceneform.ux.ArFragment;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +28,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class FrameOperations {
+
+    private Resources dynamicResources;
+    private ArFragment arFragment;
+    private Context context;
 
     private ViewRenderable textRenderable;
     private ModelRenderable pottedPlantRenderable;
@@ -38,9 +43,13 @@ public class FrameOperations {
      * Constructor does all the resources loading that the plugin requires.
      *
      * @param dynamicResources The Resources object is already initialized and passed by MetaApp which helps the plugin to be "aware" of its own resources.
-     * @param context          This is the Context object passed by the MetaApp.
+     * @param arFragment          ArFragment object passed by MetaApp.
      */
-    public FrameOperations(Context context, Resources dynamicResources) {
+    public FrameOperations(Resources dynamicResources, ArFragment arFragment) {
+        this.dynamicResources = dynamicResources;
+        this.arFragment = arFragment;
+        this.context = arFragment.getContext();
+
         // This is how we load a layout resource.
         int layoutId = dynamicResources.getIdentifier("text_view", "layout", "edu.buffalo.cse622.plugins");
         XmlResourceParser textViewXml = dynamicResources.getLayout(layoutId);

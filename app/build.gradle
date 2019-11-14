@@ -22,7 +22,7 @@ android {
 
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
-            outputFileName = new File("PottedPlant.apk")
+            outputFileName = new File("PottedPlantPlugin.apk")
         }
     }
 }
