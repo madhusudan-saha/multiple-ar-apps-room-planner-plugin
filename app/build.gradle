@@ -23,7 +23,7 @@ android {
 
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
-            outputFileName = new File("PottedPlantPlugin.apk")
+            outputFileName = new File("RoomPlannerPlugin.apk")
         }
     }
 }

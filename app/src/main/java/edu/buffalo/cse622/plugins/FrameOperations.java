@@ -38,8 +38,6 @@ public class FrameOperations {
     private ArFragment arFragment;
     private Context context;
 
-    private String objectChosen;
-
     private ViewRenderable pottedPlantTextRenderable;
     private ModelRenderable pottedPlantRenderable;
     private TransformableNode pottedPlantNode;
@@ -60,7 +58,7 @@ public class FrameOperations {
      * Constructor does all the resources loading that the plugin requires.
      *
      * @param dynamicResources The Resources object is already initialized and passed by MetaApp which helps the plugin to be "aware" of its own resources.
-     * @param arFragment          ArFragment object passed by MetaApp.
+     * @param arFragment       ArFragment object passed by MetaApp.
      */
     public FrameOperations(Resources dynamicResources, ArFragment arFragment) {
         this.dynamicResources = dynamicResources;
@@ -96,7 +94,6 @@ public class FrameOperations {
                         return inputStream;
                     }
                 }).build();
-
         CompletableFuture<ModelRenderable> bedStage =
                 ModelRenderable.builder().setSource(context, new Callable<InputStream>() {
                     @Override
@@ -112,7 +109,6 @@ public class FrameOperations {
                         return inputStream;
                     }
                 }).build();
-
         CompletableFuture<ModelRenderable> couchStage =
                 ModelRenderable.builder().setSource(context, new Callable<InputStream>() {
                     @Override
@@ -128,7 +124,6 @@ public class FrameOperations {
                         return inputStream;
                     }
                 }).build();
-
         CompletableFuture<ModelRenderable> deskStage =
                 ModelRenderable.builder().setSource(context, new Callable<InputStream>() {
                     @Override
@@ -144,7 +139,6 @@ public class FrameOperations {
                         return inputStream;
                     }
                 }).build();
-
         CompletableFuture<ModelRenderable> officeChairStage =
                 ModelRenderable.builder().setSource(context, new Callable<InputStream>() {
                     @Override
@@ -192,13 +186,9 @@ public class FrameOperations {
                         });
 
         pottedPlantNode = new TransformableNode(arFragment.getTransformationSystem());
-
         bedNode = new TransformableNode(arFragment.getTransformationSystem());
-
         couchNode = new TransformableNode(arFragment.getTransformationSystem());
-
         deskNode = new TransformableNode(arFragment.getTransformationSystem());
-
         officeChairNode = new TransformableNode(arFragment.getTransformationSystem());
     }
 
@@ -254,7 +244,7 @@ public class FrameOperations {
                 int selectedIndex = objectsGroup.indexOfChild(radioButtonView);
 
                 RadioButton radioButton = (RadioButton) objectsGroup.getChildAt(selectedIndex);
-                objectChosen = radioButton.getText().toString();
+                String objectChosen = radioButton.getText().toString();
 
                 switch (objectChosen) {
                     case "Potted Plant":
@@ -294,6 +284,10 @@ public class FrameOperations {
 
         builder.show();
     }
+
+    /*
+     * Separate methods for object rendering in case we want to do any object specific configuration later.
+     */
 
     private AnchorNode renderPottedPlant(HitResult hitResult) {
         AnchorNode anchorNode = null;
