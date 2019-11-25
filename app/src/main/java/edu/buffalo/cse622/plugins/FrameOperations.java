@@ -28,6 +28,7 @@ import com.google.ar.sceneform.ux.TransformableNode;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -37,6 +38,7 @@ public class FrameOperations {
     private Resources dynamicResources;
     private ArFragment arFragment;
     private Context context;
+    private HashSet<AnchorNode> pluginObjects;
 
     private ViewRenderable pottedPlantTextRenderable;
     private ModelRenderable pottedPlantRenderable;
@@ -60,10 +62,11 @@ public class FrameOperations {
      * @param dynamicResources The Resources object is already initialized and passed by MetaApp which helps the plugin to be "aware" of its own resources.
      * @param arFragment       ArFragment object passed by MetaApp.
      */
-    public FrameOperations(Resources dynamicResources, ArFragment arFragment) {
+    public FrameOperations(Resources dynamicResources, ArFragment arFragment, HashSet<AnchorNode> pluginObjects) {
         this.dynamicResources = dynamicResources;
         this.arFragment = arFragment;
         this.context = arFragment.getContext();
+        this.pluginObjects = pluginObjects;
 
         // This is how we load a layout resource.
         int pottedPlantTextLayoutId = dynamicResources.getIdentifier("text_view", "layout", "edu.buffalo.cse622.plugins");
@@ -246,31 +249,37 @@ public class FrameOperations {
                 RadioButton radioButton = (RadioButton) objectsGroup.getChildAt(selectedIndex);
                 String objectChosen = radioButton.getText().toString();
 
+                AnchorNode renderedObject = null;
                 switch (objectChosen) {
                     case "Potted Plant":
-                        renderPottedPlant(hitResult).setParent(arFragment.getArSceneView().getScene());
+                        renderedObject = renderPottedPlant(hitResult);
 
                         break;
 
                     case "Bed":
-                        renderBed(hitResult).setParent(arFragment.getArSceneView().getScene());
+                        renderedObject = renderBed(hitResult);
 
                         break;
 
                     case "Couch":
-                        renderCouch(hitResult).setParent(arFragment.getArSceneView().getScene());
+                        renderedObject = renderCouch(hitResult);
 
                         break;
 
                     case "Desk":
-                        renderDesk(hitResult).setParent(arFragment.getArSceneView().getScene());
+                        renderedObject = renderDesk(hitResult);
 
                         break;
 
                     case "Office Chair":
-                        renderOfficeChair(hitResult).setParent(arFragment.getArSceneView().getScene());
+                        renderedObject = renderOfficeChair(hitResult);
 
                         break;
+                }
+
+                if (renderedObject != null) {
+                    renderedObject.setParent(arFragment.getArSceneView().getScene());
+                    pluginObjects.add(renderedObject);
                 }
             }
         });
