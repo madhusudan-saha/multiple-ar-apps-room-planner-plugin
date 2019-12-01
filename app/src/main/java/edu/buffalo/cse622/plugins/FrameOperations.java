@@ -29,30 +29,36 @@ import com.google.ar.sceneform.ux.TransformableNode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class FrameOperations {
+
+    private static final String TAG = "RoomPlannerPlugin:" + FrameOperations.class.getSimpleName();
 
     private Resources dynamicResources;
     private ArFragment arFragment;
     private Context context;
     private HashSet<AnchorNode> pluginObjects;
 
+    private AnchorNode pottedPlantAnchorNode;
     private ViewRenderable pottedPlantTextRenderable;
     private ModelRenderable pottedPlantRenderable;
     private TransformableNode pottedPlantNode;
 
+    private AnchorNode bedAnchorNode;
     private ModelRenderable bedRenderable;
     private TransformableNode bedNode;
 
+    private AnchorNode couchAnchorNode;
     private ModelRenderable couchRenderable;
     private TransformableNode couchNode;
 
+    private AnchorNode deskAnchorNode;
     private ModelRenderable deskRenderable;
     private TransformableNode deskNode;
 
+    private AnchorNode officeChairAnchorNode;
     private ModelRenderable officeChairRenderable;
     private TransformableNode officeChairNode;
 
@@ -83,79 +89,64 @@ public class FrameOperations {
 
         // This is how we load a model/asset.
         CompletableFuture<ModelRenderable> pottedPlantStage =
-                ModelRenderable.builder().setSource(context, new Callable<InputStream>() {
-                    @Override
-                    public InputStream call() throws Exception {
-                        InputStream inputStream = null;
-                        try {
-                            AssetManager assetManager = dynamicResources.getAssets();
-                            inputStream = assetManager.open("potted_plant.sfb");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        return inputStream;
+                ModelRenderable.builder().setSource(context, () -> {
+                    InputStream inputStream = null;
+                    try {
+                        AssetManager assetManager = dynamicResources.getAssets();
+                        inputStream = assetManager.open("potted_plant.sfb");
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
+
+                    return inputStream;
                 }).build();
         CompletableFuture<ModelRenderable> bedStage =
-                ModelRenderable.builder().setSource(context, new Callable<InputStream>() {
-                    @Override
-                    public InputStream call() throws Exception {
-                        InputStream inputStream = null;
-                        try {
-                            AssetManager assetManager = dynamicResources.getAssets();
-                            inputStream = assetManager.open("bed.sfb");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        return inputStream;
+                ModelRenderable.builder().setSource(context, () -> {
+                    InputStream inputStream = null;
+                    try {
+                        AssetManager assetManager = dynamicResources.getAssets();
+                        inputStream = assetManager.open("bed.sfb");
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
+
+                    return inputStream;
                 }).build();
         CompletableFuture<ModelRenderable> couchStage =
-                ModelRenderable.builder().setSource(context, new Callable<InputStream>() {
-                    @Override
-                    public InputStream call() throws Exception {
-                        InputStream inputStream = null;
-                        try {
-                            AssetManager assetManager = dynamicResources.getAssets();
-                            inputStream = assetManager.open("couch.sfb");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        return inputStream;
+                ModelRenderable.builder().setSource(context, () -> {
+                    InputStream inputStream = null;
+                    try {
+                        AssetManager assetManager = dynamicResources.getAssets();
+                        inputStream = assetManager.open("couch.sfb");
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
+
+                    return inputStream;
                 }).build();
         CompletableFuture<ModelRenderable> deskStage =
-                ModelRenderable.builder().setSource(context, new Callable<InputStream>() {
-                    @Override
-                    public InputStream call() throws Exception {
-                        InputStream inputStream = null;
-                        try {
-                            AssetManager assetManager = dynamicResources.getAssets();
-                            inputStream = assetManager.open("desk.sfb");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        return inputStream;
+                ModelRenderable.builder().setSource(context, () -> {
+                    InputStream inputStream = null;
+                    try {
+                        AssetManager assetManager = dynamicResources.getAssets();
+                        inputStream = assetManager.open("desk.sfb");
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
+
+                    return inputStream;
                 }).build();
         CompletableFuture<ModelRenderable> officeChairStage =
-                ModelRenderable.builder().setSource(context, new Callable<InputStream>() {
-                    @Override
-                    public InputStream call() throws Exception {
-                        InputStream inputStream = null;
-                        try {
-                            AssetManager assetManager = dynamicResources.getAssets();
-                            inputStream = assetManager.open("office_chair.sfb");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        return inputStream;
+                ModelRenderable.builder().setSource(context, () -> {
+                    InputStream inputStream = null;
+                    try {
+                        AssetManager assetManager = dynamicResources.getAssets();
+                        inputStream = assetManager.open("office_chair.sfb");
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
+
+                    return inputStream;
                 }).build();
 
         CompletableFuture.allOf(
@@ -196,7 +187,7 @@ public class FrameOperations {
     }
 
     /**
-     * This is where we do most of our operations on the frame and return the AnchorNode object back to MetaApp.
+     * This is where we do most of our operations on the frame.
      *
      * @param frame
      * @return
@@ -204,6 +195,11 @@ public class FrameOperations {
     private void processFrame(Frame frame) {
     }
 
+    /**
+     * This is the method that is invoked when user input for this plugin is activated in MetaApp and user taps on a plane.
+     *
+     * @param hitResult
+     */
     private void planeTap(HitResult hitResult) {
         // Creates a popup with the list of objects that can be rendered
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -249,37 +245,31 @@ public class FrameOperations {
                 RadioButton radioButton = (RadioButton) objectsGroup.getChildAt(selectedIndex);
                 String objectChosen = radioButton.getText().toString();
 
-                AnchorNode renderedObject = null;
                 switch (objectChosen) {
                     case "Potted Plant":
-                        renderedObject = renderPottedPlant(hitResult);
+                        renderObject(renderPottedPlant(hitResult));
 
                         break;
 
                     case "Bed":
-                        renderedObject = renderBed(hitResult);
+                        renderObject(renderBed(hitResult));
 
                         break;
 
                     case "Couch":
-                        renderedObject = renderCouch(hitResult);
+                        renderObject(renderCouch(hitResult));
 
                         break;
 
                     case "Desk":
-                        renderedObject = renderDesk(hitResult);
+                        renderObject(renderDesk(hitResult));
 
                         break;
 
                     case "Office Chair":
-                        renderedObject = renderOfficeChair(hitResult);
+                        renderObject(renderOfficeChair(hitResult));
 
                         break;
-                }
-
-                if (renderedObject != null) {
-                    renderedObject.setParent(arFragment.getArSceneView().getScene());
-                    pluginObjects.add(renderedObject);
                 }
             }
         });
@@ -294,19 +284,29 @@ public class FrameOperations {
         builder.show();
     }
 
+    /**
+     * This is invoked when the MetaApp clears or disables this plugin.
+     *
+     */
+    private void onDestroy() {
+    }
+
     /*
      * Separate methods for object rendering in case we want to do any object specific configuration later.
      */
 
     private AnchorNode renderPottedPlant(HitResult hitResult) {
-        AnchorNode anchorNode = null;
-
         if (pottedPlantRenderable != null && pottedPlantTextRenderable != null) {
             Anchor anchor = hitResult.createAnchor();
-            anchorNode = new AnchorNode(anchor);
+            if (pottedPlantAnchorNode == null) {
+                pottedPlantAnchorNode = new AnchorNode(anchor);
+            }
+            else {
+                pottedPlantAnchorNode.setAnchor(anchor);
+            }
 
             // Create potted plant relative to anchor node
-            pottedPlantNode.setParent(anchorNode);
+            pottedPlantNode.setParent(pottedPlantAnchorNode);
             SkeletonNode pottedPlant = new SkeletonNode();
             pottedPlant.setParent(pottedPlantNode);
             pottedPlant.setRenderable(pottedPlantRenderable);
@@ -332,75 +332,94 @@ public class FrameOperations {
             textView.setText("Please water this plant!");
         }
 
-        return anchorNode;
+        return pottedPlantAnchorNode;
     }
 
     private AnchorNode renderBed(HitResult hitResult) {
-        AnchorNode anchorNode = null;
-
         if (bedRenderable != null) {
             Anchor anchor = hitResult.createAnchor();
-            anchorNode = new AnchorNode(anchor);
+            if (bedAnchorNode == null) {
+                bedAnchorNode = new AnchorNode(anchor);
+            }
+            else {
+                bedAnchorNode.setAnchor(anchor);
+            }
 
-            bedNode.setParent(anchorNode);
+            bedNode.setParent(bedAnchorNode);
             Node bed = new Node();
             bed.setParent(bedNode);
             bed.setRenderable(bedRenderable);
-            bed.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
+            bed.setLocalScale(new Vector3(0.5f, 0.5f, 0.5f));
         }
 
-        return anchorNode;
+        return bedAnchorNode;
     }
 
     private AnchorNode renderCouch(HitResult hitResult) {
-        AnchorNode anchorNode = null;
-
         if (couchRenderable != null) {
             Anchor anchor = hitResult.createAnchor();
-            anchorNode = new AnchorNode(anchor);
+            if (couchAnchorNode == null) {
+                couchAnchorNode = new AnchorNode(anchor);
+            }
+            else {
+                couchAnchorNode.setAnchor(anchor);
+            }
 
-            couchNode.setParent(anchorNode);
+            couchNode.setParent(couchAnchorNode);
             Node couch = new Node();
             couch.setParent(couchNode);
             couch.setRenderable(couchRenderable);
-            couch.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
+            couch.setLocalScale(new Vector3(0.5f, 0.5f, 0.5f));
         }
 
-        return anchorNode;
+        return couchAnchorNode;
     }
 
     private AnchorNode renderDesk(HitResult hitResult) {
-        AnchorNode anchorNode = null;
-
         if (deskRenderable != null) {
             Anchor anchor = hitResult.createAnchor();
-            anchorNode = new AnchorNode(anchor);
+            if (deskAnchorNode == null) {
+                deskAnchorNode = new AnchorNode(anchor);
+            }
+            else {
+                deskAnchorNode.setAnchor(anchor);
+            }
 
-            deskNode.setParent(anchorNode);
+            deskNode.setParent(deskAnchorNode);
             Node desk = new Node();
             desk.setParent(deskNode);
             desk.setRenderable(deskRenderable);
-            desk.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
+            desk.setLocalScale(new Vector3(0.5f, 0.5f, 0.5f));
         }
 
-        return anchorNode;
+        return deskAnchorNode;
     }
 
     private AnchorNode renderOfficeChair(HitResult hitResult) {
-        AnchorNode anchorNode = null;
-
         if (officeChairRenderable != null) {
             Anchor anchor = hitResult.createAnchor();
-            anchorNode = new AnchorNode(anchor);
+            if (officeChairAnchorNode == null) {
+                officeChairAnchorNode = new AnchorNode(anchor);
+            }
+            else {
+                officeChairAnchorNode.setAnchor(anchor);
+            }
 
-            officeChairNode.setParent(anchorNode);
+            officeChairNode.setParent(officeChairAnchorNode);
             Node officeChair = new Node();
             officeChair.setParent(officeChairNode);
             officeChair.setRenderable(officeChairRenderable);
-            officeChair.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
+            officeChair.setLocalScale(new Vector3(0.5f, 0.5f, 0.5f));
         }
 
-        return anchorNode;
+        return officeChairAnchorNode;
+    }
+
+    private void renderObject(AnchorNode anchorNode) {
+        if (anchorNode != null) {
+            anchorNode.setParent(arFragment.getArSceneView().getScene());
+            pluginObjects.add(anchorNode);
+        }
     }
 }
 
