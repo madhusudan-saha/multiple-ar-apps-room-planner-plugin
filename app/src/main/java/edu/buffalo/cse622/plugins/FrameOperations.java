@@ -55,6 +55,7 @@ public class FrameOperations {
 
     private ModelRenderable officeChairRenderable;
     private TransformableNode officeChairNode;
+    private HitResult hitResult;
 
     /**
      * Constructor does all the resources loading that the plugin requires.
@@ -204,101 +205,64 @@ public class FrameOperations {
     private void processFrame(Frame frame) {
     }
 
-    private void planeTap(HitResult hitResult) {
+    private synchronized void onResolveButtonPressed() {
+        Log.e("PartiksTag","onResolveButtonPressed method START");
+        ResolveDialogFragment dialog = ResolveDialogFragment.createWithOkListener(this::onObjectChosen);
+        dialog.show(arFragment.getFragmentManager(), "Resolve");
+        Log.e("PartiksTag","onResolveButtonPressed method END");
+    }
+
+    private synchronized void onObjectChosen(String objectChosen) {
+        Log.e("PartiksTag","onShortCodeEntered Called");
+        AnchorNode renderedObject = null;
+        switch (objectChosen) {
+            case "Potted Plant":
+                renderedObject = renderPottedPlant();
+
+                break;
+
+            case "Bed":
+                renderedObject = renderBed();
+
+                break;
+
+            case "Couch":
+                renderedObject = renderCouch();
+
+                break;
+
+            case "Desk":
+                renderedObject = renderDesk();
+
+                break;
+
+            case "Office Chair":
+                renderedObject = renderOfficeChair();
+
+                break;
+        }
+
+        if (renderedObject != null) {
+            renderedObject.setParent(arFragment.getArSceneView().getScene());
+            //pluginObjects.add(renderedObject);
+        }
+        return ;
+    }
+
+    private void planeTap(HitResult hitResult2) {
+        this.hitResult = hitResult2;
+        ResolveDialogFragment rd = ResolveDialogFragment.createWithOkListener(this::onObjectChosen);
+        rd.partiksSetup(arFragment);
+        rd.show(arFragment.getFragmentManager(), "Resolve");
+
         // Creates a popup with the list of objects that can be rendered
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Choose object to place");
-
-        RadioGroup objectsGroup = new RadioGroup(context);
-        objectsGroup.setOrientation(RadioGroup.VERTICAL);
-
-        RadioButton pottedPlantOption = new RadioButton(context);
-        pottedPlantOption.setId(View.generateViewId());
-        pottedPlantOption.setText("Potted Plant");
-        objectsGroup.addView(pottedPlantOption);
-
-        RadioButton bedOption = new RadioButton(context);
-        bedOption.setId(View.generateViewId());
-        bedOption.setText("Bed");
-        objectsGroup.addView(bedOption);
-
-        RadioButton couchOption = new RadioButton(context);
-        couchOption.setId(View.generateViewId());
-        couchOption.setText("Couch");
-        objectsGroup.addView(couchOption);
-
-        RadioButton deskOption = new RadioButton(context);
-        deskOption.setId(View.generateViewId());
-        deskOption.setText("Desk");
-        objectsGroup.addView(deskOption);
-
-        RadioButton officeChairOption = new RadioButton(context);
-        officeChairOption.setId(View.generateViewId());
-        officeChairOption.setText("Office Chair");
-        objectsGroup.addView(officeChairOption);
-
-        builder.setView(objectsGroup);
-
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                int radioButtonID = objectsGroup.getCheckedRadioButtonId();
-                View radioButtonView = objectsGroup.findViewById(radioButtonID);
-                int selectedIndex = objectsGroup.indexOfChild(radioButtonView);
-
-                RadioButton radioButton = (RadioButton) objectsGroup.getChildAt(selectedIndex);
-                String objectChosen = radioButton.getText().toString();
-
-                AnchorNode renderedObject = null;
-                switch (objectChosen) {
-                    case "Potted Plant":
-                        renderedObject = renderPottedPlant(hitResult);
-
-                        break;
-
-                    case "Bed":
-                        renderedObject = renderBed(hitResult);
-
-                        break;
-
-                    case "Couch":
-                        renderedObject = renderCouch(hitResult);
-
-                        break;
-
-                    case "Desk":
-                        renderedObject = renderDesk(hitResult);
-
-                        break;
-
-                    case "Office Chair":
-                        renderedObject = renderOfficeChair(hitResult);
-
-                        break;
-                }
-
-                if (renderedObject != null) {
-                    renderedObject.setParent(arFragment.getArSceneView().getScene());
-                    pluginObjects.add(renderedObject);
-                }
-            }
-        });
-
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
     }
 
     /*
      * Separate methods for object rendering in case we want to do any object specific configuration later.
      */
 
-    private AnchorNode renderPottedPlant(HitResult hitResult) {
+    protected AnchorNode renderPottedPlant() {
         AnchorNode anchorNode = null;
 
         if (pottedPlantRenderable != null && pottedPlantTextRenderable != null) {
@@ -331,11 +295,11 @@ public class FrameOperations {
             TextView textView = (TextView) pottedPlantTextRenderable.getView();
             textView.setText("Please water this plant!");
         }
-
+        this.hitResult=null;
         return anchorNode;
     }
 
-    private AnchorNode renderBed(HitResult hitResult) {
+    protected AnchorNode renderBed() {
         AnchorNode anchorNode = null;
 
         if (bedRenderable != null) {
@@ -348,11 +312,11 @@ public class FrameOperations {
             bed.setRenderable(bedRenderable);
             bed.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
         }
-
+        this.hitResult=null;
         return anchorNode;
     }
 
-    private AnchorNode renderCouch(HitResult hitResult) {
+    protected AnchorNode renderCouch() {
         AnchorNode anchorNode = null;
 
         if (couchRenderable != null) {
@@ -365,11 +329,11 @@ public class FrameOperations {
             couch.setRenderable(couchRenderable);
             couch.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
         }
-
+        this.hitResult=null;
         return anchorNode;
     }
 
-    private AnchorNode renderDesk(HitResult hitResult) {
+    protected AnchorNode renderDesk() {
         AnchorNode anchorNode = null;
 
         if (deskRenderable != null) {
@@ -382,11 +346,11 @@ public class FrameOperations {
             desk.setRenderable(deskRenderable);
             desk.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
         }
-
+        this.hitResult=null;
         return anchorNode;
     }
 
-    private AnchorNode renderOfficeChair(HitResult hitResult) {
+    protected AnchorNode renderOfficeChair() {
         AnchorNode anchorNode = null;
 
         if (officeChairRenderable != null) {
@@ -399,7 +363,7 @@ public class FrameOperations {
             officeChair.setRenderable(officeChairRenderable);
             officeChair.setLocalScale(new Vector3(0.25f, 0.25f, 0.25f));
         }
-
+        this.hitResult=null;
         return anchorNode;
     }
 }
