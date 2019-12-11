@@ -1,7 +1,6 @@
 package edu.buffalo.cse622.plugins;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
@@ -32,7 +31,7 @@ import java.util.HashSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public class FrameOperations {
+public class FrameOperations implements Operations {
 
     private static final String TAG = "RoomPlannerPlugin:" + FrameOperations.class.getSimpleName();
 
@@ -67,6 +66,7 @@ public class FrameOperations {
      *
      * @param dynamicResources The Resources object is already initialized and passed by MetaApp which helps the plugin to be "aware" of its own resources.
      * @param arFragment       ArFragment object passed by MetaApp.
+     * @param pluginObjects    Reference to HashSet object that keeps track of all plugin rendered objects in the MetaApp.
      */
     public FrameOperations(Resources dynamicResources, ArFragment arFragment, HashSet<AnchorNode> pluginObjects) {
         this.dynamicResources = dynamicResources;
@@ -192,7 +192,7 @@ public class FrameOperations {
      * @param frame
      * @return
      */
-    private void processFrame(Frame frame) {
+    public void processFrame(Frame frame) {
     }
 
     /**
@@ -200,7 +200,7 @@ public class FrameOperations {
      *
      * @param hitResult
      */
-    private void planeTap(HitResult hitResult) {
+    public void planeTap(HitResult hitResult) {
         // Creates a popup with the list of objects that can be rendered
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Choose object to place");
@@ -235,51 +235,43 @@ public class FrameOperations {
 
         builder.setView(objectsGroup);
 
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                int radioButtonID = objectsGroup.getCheckedRadioButtonId();
-                View radioButtonView = objectsGroup.findViewById(radioButtonID);
-                int selectedIndex = objectsGroup.indexOfChild(radioButtonView);
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            int radioButtonID = objectsGroup.getCheckedRadioButtonId();
+            View radioButtonView = objectsGroup.findViewById(radioButtonID);
+            int selectedIndex = objectsGroup.indexOfChild(radioButtonView);
 
-                RadioButton radioButton = (RadioButton) objectsGroup.getChildAt(selectedIndex);
-                String objectChosen = radioButton.getText().toString();
+            RadioButton radioButton = (RadioButton) objectsGroup.getChildAt(selectedIndex);
+            String objectChosen = radioButton.getText().toString();
 
-                switch (objectChosen) {
-                    case "Potted Plant":
-                        renderObject(renderPottedPlant(hitResult));
+            switch (objectChosen) {
+                case "Potted Plant":
+                    renderObject(arFragment, pluginObjects, renderPottedPlant(hitResult));
 
-                        break;
+                    break;
 
-                    case "Bed":
-                        renderObject(renderBed(hitResult));
+                case "Bed":
+                    renderObject(arFragment, pluginObjects, renderBed(hitResult));
 
-                        break;
+                    break;
 
-                    case "Couch":
-                        renderObject(renderCouch(hitResult));
+                case "Couch":
+                    renderObject(arFragment, pluginObjects, renderCouch(hitResult));
 
-                        break;
+                    break;
 
-                    case "Desk":
-                        renderObject(renderDesk(hitResult));
+                case "Desk":
+                    renderObject(arFragment, pluginObjects, renderDesk(hitResult));
 
-                        break;
+                    break;
 
-                    case "Office Chair":
-                        renderObject(renderOfficeChair(hitResult));
+                case "Office Chair":
+                    renderObject(arFragment, pluginObjects, renderOfficeChair(hitResult));
 
-                        break;
-                }
+                    break;
             }
         });
 
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 
         builder.show();
     }
@@ -288,7 +280,7 @@ public class FrameOperations {
      * This is invoked when the MetaApp clears or disables this plugin.
      *
      */
-    private void onDestroy() {
+    public void onDestroy() {
     }
 
     /*
@@ -415,11 +407,5 @@ public class FrameOperations {
         return officeChairAnchorNode;
     }
 
-    private void renderObject(AnchorNode anchorNode) {
-        if (anchorNode != null) {
-            anchorNode.setParent(arFragment.getArSceneView().getScene());
-            pluginObjects.add(anchorNode);
-        }
-    }
 }
 
